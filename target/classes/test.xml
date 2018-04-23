@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:schemaLocation="http://www.springframework.org/schema/integration/xml"
+	xmlns="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration/xml 
+		http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd
+		http://www.springframework.org/schema/integration/http 
+		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+		http://www.springframework.org/schema/integration 
+		http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+
+	<int:channel id="requestChannel" />
+	<int:channel id="outputChannel" />
+
+	<int-http:inbound-gateway request-channel="requestChannel"
+		reply-channel="outputChannel" supported-methods="GET" path="/test"
+		payload-expression="#requestParams.msg" error-channel="errorChannel">
+	</int-http:inbound-gateway>
+
+	<int:channel id="beanValidationExceptionChannel" />
+	<int:channel id="invalidOrderInputErrorChannel" />
+	<int:channel id="genericErrorChannel" />
+	<int:channel id="serviceActivatorChannel" />
+
+	<int:transformer id="testTransformer" ref="transformer"
+		input-channel="requestChannel" output-channel="serviceActivatorChannel" />
+
+	<int:service-activator ref="serviceActivator"
+		method="beanValidator" input-channel="serviceActivatorChannel" output-channel="outputChannel" />
+
+
+
+	<int:exception-type-router input-channel="errorChannel"
+		default-output-channel="genericErrorChannel">
+		<int:mapping exception-type="com.exception.customexception.BeanValidationException"
+			channel="beanValidationExceptionChannel" />
+		<int:mapping exception-type="com.exception.customexception.InvalidOrderException"
+			channel="invalidOrderInputErrorChannel" />
+	</int:exception-type-router>
+
+	<int:service-activator input-channel="invalidOrderInputErrorChannel"
+		ref="errorHandler" method="handleInvalidOrder" output-channel="outputChannel" />
+	<int:service-activator input-channel="beanValidationExceptionChannel"
+		ref="errorHandler" method="handleBeanValidationError" output-channel="outputChannel" />
+	<int:service-activator input-channel="genericErrorChannel"
+		ref="errorHandler" method="handleGenericErrors" output-channel="outputChannel" />
+</beans>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:schemaLocation="http://www.springframework.org/schema/integration/xml"
+	xmlns="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration/xml 
+		http://www.springframework.org/schema/integration/xml/spring-integration-xml.xsd
+		http://www.springframework.org/schema/integration/http 
+		http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+		http://www.springframework.org/schema/integration 
+		http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+
+	<int:channel id="requestChannel">
+		<int:interceptors>
+			<int:wire-tap channel="logger1" />
+		</int:interceptors>
+	</int:channel>
+
+	<int:channel id="outputChannel">
+		<int:interceptors>
+			<int:wire-tap channel="logger2" />
+		</int:interceptors>
+	</int:channel>
+
+	<int:logging-channel-adapter id="logger1"
+		level="INFO" />
+	<int:logging-channel-adapter id="logger2"
+		level="INFO" /> <!-- log-full-message="true" -->
+
+	<int-http:inbound-gateway request-channel="requestChannel"
+		reply-channel="outputChannel" supported-methods="POST" path="/getall"
+		request-payload-type="com.javasampleapproach.springintegration.inbound.model.Customer"
+	
+		error-channel="errorChannel">
+	</int-http:inbound-gateway>
+
+<int:channel id="beanValidationExceptionChannel" />
+<int:channel id="invalidOrderInputErrorChannel" />
+<int:channel id="genericErrorChannel" />
+
+
+	<int:service-activator ref="inboundEnpoint"
+		method="beanValidator" input-channel="requestChannel" output-channel="tranformerChannel" />
+		
+	<int:transformer id="testTransformer" ref="inboundEnpoint" input-channel="tranformerChannel"
+              output-channel="outputChannel"/>	
+		
+		<int:exception-type-router input-channel="errorChannel"
+                           default-output-channel="genericErrorChannel">
+    <int:mapping exception-type="com.exception.customexception.BeanValidationException"
+                 channel="beanValidationExceptionChannel"/>
+    <int:mapping exception-type="com.exception.customexception.InvalidOrderException"
+                 channel="invalidOrderInputErrorChannel"/>
+</int:exception-type-router>
+
+	<int:service-activator input-channel="invalidOrderInputErrorChannel"
+		ref="errorHandler" method="handleInvalidOrder" output-channel="outputChannel"/>
+		<int:service-activator input-channel="beanValidationExceptionChannel"
+		ref="errorHandler" method="handleBeanValidationError" output-channel="outputChannel"/>
+		<int:service-activator input-channel="genericErrorChannel"
+		ref="errorHandler" method="handleGenericErrors" output-channel="outputChannel"/>
+</beans>

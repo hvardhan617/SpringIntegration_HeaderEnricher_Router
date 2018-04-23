@@ -1,0 +1,15 @@
+com\javasampleapproach\springintegration\inbound\model\Customer.class
+com\exception\customexception\GenericException.class
+com\javasampleapproach\springintegration\inbound\endpoint\ServiceActivator.class
+com\javasampleapproach\springintegration\inbound\endpoint\Transformer.class
+com\javasampleapproach\springintegration\inbound\AppConfig.class
+com\javasampleapproach\springintegration\inbound\model\BeanValidator.class
+com\javasampleapproach\springintegration\inbound\services\CustomerService.class
+com\exception\customexception\InvalidOrderException.class
+com\javasampleapproach\springintegration\inbound\model\Customer2.class
+com\javasampleapproach\springintegration\inbound\model\XMLRestController.class
+com\exception\customexception\BeanValidationException.class
+com\javasampleapproach\springintegration\inbound\model\Test.class
+com\javasampleapproach\springintegration\inbound\endpoint\InboundEnpoint.class
+com\javasampleapproach\springintegration\inbound\SpringIntegrationInboundComponentApplication.class
+com\exception\customexception\ErrorHandler.class
