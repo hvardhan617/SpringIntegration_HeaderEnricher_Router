@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Implementation-Title: SpringIntegrationInboundComponent
 Implementation-Version: 0.0.1
-Built-By: harshavardhan.p
+Built-By: hvard
 Implementation-Vendor-Id: com.javasampleapproach.springintegration
-Build-Jdk: 1.8.0_40
+Build-Jdk: 1.8.0_161
 Implementation-URL: http://projects.spring.io/spring-boot/SpringIntegr
  ationInboundComponent/
 Created-By: Maven Integration for Eclipse
